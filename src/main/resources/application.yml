@@ -1,0 +1,55 @@
+server:
+  port: 8085
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.http.server.reactive: DEBUG
+    org.springframework.web.reactive: DEBUG
+    reactor.netty: DEBUG
+
+spring:
+  cloud:
+    config:
+      enabled: false
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedMethods: "GET, POST, PUT, DELETE, OPTIONS"
+            allowedHeaders: "Authorization, Content-Type"
+            allowCredentials: true
+      routes:
+        - id: user-auth-service
+          uri: http://localhost:8080
+          predicates:
+            - Path=/auth/**
+
+        - id: inventory-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/inventory/**
+
+        - id: order-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/orders/**
+
+        - id: supplier-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/supplier/**
+
+        - id: data-insights-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/dashboard/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
